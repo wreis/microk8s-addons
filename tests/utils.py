@@ -1,7 +1,11 @@
 import datetime
 import time
-import yaml
+
 from subprocess import check_output, CalledProcessError
+from ruamel.yaml import YAML
+
+
+yaml = YAML(typ="safe")
 
 
 def run_until_success(cmd, timeout_insec=60, err_out=None):
@@ -58,7 +62,7 @@ def kubectl_get(target, timeout_insec=300):
     """
     cmd = "get -o yaml " + target
     output = kubectl(cmd, timeout_insec)
-    return yaml.safe_load(output)
+    return yaml.load(output)
 
 
 def wait_for_pod_state(
