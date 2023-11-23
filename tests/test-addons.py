@@ -9,9 +9,16 @@ yaml = YAML(typ="safe")
 
 
 class TestAddons(object):
-    def test_python_demo_nginx(self):
-        microk8s_enable("python-hello-k8s")
-        wait_for_pod_state("", "default", "running", label="app=python-demo-nginx")
+    def test_jupyterlab(self):
+        microk8s_enable(
+            "jupyterlab --set image=jupyter/base-notebook:x86_64-ubuntu-22.04"
+        )
+        wait_for_pod_state(
+            pod="",
+            namespace="default",
+            desired_state="running",
+            label="app.kubernetes.io/name=jupyterlab",
+        )
         status = yaml.load(sh.microk8s.status(format="yaml"))
-        expected = {"python-hello-k8s": "enabled"}
-        microk8s_disable("python-hello-k8s")
+        expected = {"jupyterlab": "enabled"}
+        microk8s_disable("jupyterlab")

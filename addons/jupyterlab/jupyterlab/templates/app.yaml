@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jupyterlab
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "labels" . | indent 2 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jupyterlab
+  serviceName: jupyterlab-headless
+  template:
+    metadata:
+      name: 
+      labels:
+        {{- include "labels" . | indent 6 }}
+    spec:
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: jupyterlab
+        image: {{ .Values.image | default "docker.io/cschranz/gpu-jupyter:v1.5_cuda-11.6_ubuntu-20.04" }}
+        imagePullPolicy: IfNotPresent
+        args:
+          - start.sh
+          - jupyter
+          - lab
+          - "--ServerApp.token=''"
+          - "--ContentsManager.allow_hidden=True"
+        env:
+          - name: JUPYTER_ENABLE_LAB
+            value: "yes"
+          - name: GRANT_SUDO
+            value: "yes"
+          - name: CHOWN_HOME
+            value: "yes"
+          - name: CHOWN_HOME_OPTS
+            value: "-R"
+          - name: CHOWN_EXTRA
+            value: "/var/run/secrets/eks.amazonaws.com,/var/run/secrets/kubernetes.io"
+        ports:
+          - name: http
+            containerPort: 8888
+        workingDir: /home/jovyan
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: shm
+          - name: jupyterlab
+            mountPath: /home/jovyan
+            readOnly: false
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+  volumeClaimTemplates:
+    - metadata:
+        name: jupyterlab
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.storageSize | default "5G" }}

@@ -1,0 +1,11 @@
+#!/bin/bash -e
+set -e
+
+HELM="${SNAP}/microk8s-helm.wrapper"
+NAMESPACE="jupyterlab"
+
+echo "Disabling jupyterlab workspace"
+
+"${HELM}" uninstall jupyterlab -n "${NAMESPACE}"
+
+echo "Disabled jupyterlab workspace"

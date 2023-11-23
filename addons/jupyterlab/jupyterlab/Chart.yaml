@@ -1,0 +1,6 @@
+apiVersion: v2
+name: jupyterlab
+description: A Helm chart for jupyterlab application
+type: application
+version: 0.0.1
+appVersion: 1.5.11-6
