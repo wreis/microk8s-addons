@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+HELM="${SNAP}/microk8s-helm.wrapper"
+
+NAMESPACE="jupyterlab"
+VERSION=0.0.1
+
+echo "Enabling jupyterlab workspace"
+
+"${HELM}" package --destination /tmp/microk8s-charts --version ${VERSION} ./addons/jupyterlab/jupyterlab
+"${HELM}" upgrade -n "${NAMESPACE}" jupyterlab /tmp/microk8s-charts/jupyterlab-${VERSION}.tgz --install --create-namespace "$@"
+
+echo "
+
+jupyterlab has been installed.
+
+Access the workspace at http://localhost:8888
+
+    $ microk8s kubectl port-forward -n jupyterlab svc/jupyterlab 8888:8888
+
+"
